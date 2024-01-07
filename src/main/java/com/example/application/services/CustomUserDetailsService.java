@@ -1,30 +1,36 @@
 package com.example.application.services;
 
+import com.example.application.repositories.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
+import java.util.Collection;
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
+    private UserRepository userRepository;
+    @Autowired
+    private CustomUserDetailsService(UserRepository userRepository)
+    {this.userRepository=userRepository;}
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        // Logic to load user details from your data source (e.g., database)
-        // Replace this with your implementation to fetch user details by username
-        // Example code below assumes fetching UserDetails from database by username
-
-        // For demonstration purposes, creating a UserDetails object with hardcoded values
-        // Replace this with your actual user retrieval logic
-        if ("user123".equals(username)) {
-            return org.springframework.security.core.userdetails.User.builder()
-                    .username("user123")
-                    .password("$2a$10$DgmeZ6ytCx57Wr2SxfuESOvjHz9ENgQXdMUE0wVUuJgGiaCMNBVvW") // Encrypted password
-                    .roles("USER")
-                    .build();
-        } else {
-            throw new UsernameNotFoundException("User not found with username: " + username);
+        com.example.application.module.User user = userRepository.findByUsername(username);
+        if (user == null) {
+            throw new UsernameNotFoundException(username);
         }
+        return new User(user.getUsername(), user.getPasswordHash(), getAuthorities(user));
+    }
+
+
+    private Collection<? extends GrantedAuthority> getAuthorities(com.example.application.module.User user) {
+        // Implement authority mapping based on user roles
+        return Arrays.asList(new SimpleGrantedAuthority("ROLE_USER"));
     }
 }
-
