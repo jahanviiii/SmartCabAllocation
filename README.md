@@ -1,4 +1,6 @@
 SMART CAB ALLOCATION
+
+
 Consists of algorithm to optimize cab allocation for trips, reducing overall travel distance
 Enhance the user experience for employees searching for cabs by suggesting nearby cabs that are currently in use.
 Ensure seamless integration of real-time location data for cabs and trip start locations to enhance the accuracy of suggestions.
