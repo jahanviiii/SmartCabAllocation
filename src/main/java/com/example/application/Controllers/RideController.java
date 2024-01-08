@@ -60,7 +60,8 @@ public class RideController {
                 searchRadius *= 2; // Double the search radius
                 continue;
             }
-            acceptedCab = waitForDriverAcceptance(availableCabs);
+
+            acceptedCab = waitForDriverAcceptance(availableCabs,latitude,longitude);
 
             if (acceptedCab != null) {
                 tripService.finalizeRideDetails(acceptedCab, tripId);
@@ -73,20 +74,31 @@ public class RideController {
         return ResponseEntity.status(404).body("No cabs available within a reasonable distance.");
     }
 
-    private Cab waitForDriverAcceptance(List<Cab> availableCabs) {
+    private Cab waitForDriverAcceptance( List<Cab>availableCabs,Double latitude,Double longitude) {
         long startTime = System.currentTimeMillis();
         long timeout = 60000; // 60 seconds
-
+        Cab previousSuggest= null;
         while (System.currentTimeMillis() - startTime < timeout) {
             // Check if any cab from the availableCabs has accepted the ride
-            for (Cab cab : availableCabs) {
-                Cab currentCab = cabService.getCabById(cab.getCabId());
-                if (currentCab != null && "Accepted".equals(currentCab.getStatus())) {
-                    // Ride has been accepted
-                    cabService.acceptRide(currentCab.getCabId());
-                    return currentCab;
+            Cab suggestedCab = cabService.suggestBestCabByProximity(latitude, longitude, availableCabs);
+            if (suggestedCab != null && "Accepted".equals(suggestedCab.getStatus()))
+            {
+                cabService.acceptRide(suggestedCab.getCabId());
+                return suggestedCab;
+            }
+            else {
+                previousSuggest= suggestedCab;
+                for (Cab cab : availableCabs) {
+
+                    if (cab != null && "Accepted".equals(cab.getStatus()) && cab!=previousSuggest) {
+                        // Ride has been accepted
+                        cabService.acceptRide(cab.getCabId());
+                        return cab;
+                    }
+                    else {previousSuggest=cab;}
                 }
             }
+
 
             try {
                 Thread.sleep(5000); // Sleep for 5 seconds before checking again
