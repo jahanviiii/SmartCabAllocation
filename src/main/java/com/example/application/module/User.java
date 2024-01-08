@@ -11,7 +11,7 @@ public class User {
     private String passwordHash;
     private String email;
     private String userType; // Admin, Employee, User
-    private String googleId;
+
 
     public String getUserId() {
         return userId;
@@ -53,11 +53,4 @@ public class User {
         this.userType = userType;
     }
 
-    public String getGoogleId() {
-        return googleId;
-    }
-
-    public void setGoogleId(String googleId) {
-        this.googleId = googleId;
-    }
 }

@@ -83,6 +83,7 @@ public class RideController {
                 Cab currentCab = cabService.getCabById(cab.getCabId());
                 if (currentCab != null && "Accepted".equals(currentCab.getStatus())) {
                     // Ride has been accepted
+                    cabService.acceptRide(currentCab.getCabId());
                     return currentCab;
                 }
             }
